@@ -2,11 +2,18 @@
     and the batch copy editor component -->
 
 <div class="div d-flex batch-copy-row" *ngIf="copy">
-  <div class="pe-1 pt-2 text-secondary">
-    <!-- ensure the rowIndex for the first 100 copies vertically
-         aligns with an invisible 0 for 1..9 -->
-    {{rowIndex}}<span *ngIf="rowIndex < 10" class="invisible">0</span>
-  </div>
+    <div class="pe-1 pt-2 text-secondary">
+      <ng-container *ngIf="batchMode">
+        <span class="invisible">00</span>
+      </ng-container>
+      <ng-container *ngIf="!batchMode">
+        <!-- ensure the rowIndex for the first 100 copies vertically 
+            aligns with an invisible 0 for 1..9 -->
+        {{rowIndex}}<span *ngIf="rowIndex < 10" class="invisible">0</span>
+      </ng-container>
+      
+    </div>
+  
   <ng-content></ng-content>
   <div class="flex-1 p-1">
     <eg-org-select #owningLibSelect placeholder="Owning Branch..." 
@@ -67,11 +74,7 @@
         (ngModelChange)="valueChange('cn_label', $event)">
     </ng-container>
   </div>
-  <div class="flex-1 p-1">
-    <ng-container *ngIf="batchMode">
-      <button type="button" class="btn btn-outline-dark" 
-        (click)="batchApplyRequested.emit(copy)" i18n>Batch Update</button>
-    </ng-container>
+  <div class="flex-1 p-1" *ngIf="!hideBarcode">
     <ng-container *ngIf="!batchMode && !batchAdd && !gatherParamsOnly">
       <ng-container *ngIf="fieldIsDisabled('barcode')">
         <span>{{copy.barcode()}}</span>
@@ -84,8 +87,21 @@
       </ng-container>
     </ng-container>
   </div>
+  <div class="flex-2 p-1">
+    <ng-container *ngIf="fieldIsDisabled('note'); else enabledNote">
+      <span>{{copy.note()}}</span>
+    </ng-container>
+    <ng-template #enabledNote>
+      <input type="text" class="form-control" 
+      [ngModel]="copy.note()" (ngModelChange)="valueChange('note', $event)"
+      placeholder="Note..." i18n-placeholder/>
+    </ng-template>
+  </div>
   <div class="flex-1 p-1" *ngIf="showReceiver">
     {{copy.receiver()?.usrname()}}
+  </div>
+  <div class="flex-1 p-1" *ngIf="showReceivedTime">
+    {{copy.recv_time() | date:'short'}}
   </div>
   <ng-container *ngIf="!embedded && !gatherParamsOnly">
     <div class="flex-2 p-1 pe-2 ps-2">
@@ -120,7 +136,10 @@
             {{copy.cancel_reason().label()}}
           </span>
         </ng-container>
-
+      </ng-container>
+      <ng-container *ngIf="batchMode">
+        <button type="button" class="btn btn-outline-dark" 
+          (click)="batchApplyRequested.emit(copy)" i18n>Batch Update</button>
       </ng-container>
     </div>
   </ng-container>

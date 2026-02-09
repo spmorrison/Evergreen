@@ -13,7 +13,8 @@ const BATCH_FIELDS = [
     'collection_code',
     'fund',
     'circ_modifier',
-    'cn_label'
+    'cn_label',
+    'note'
 ];
 
 @Component({
@@ -25,6 +26,7 @@ export class LineitemBatchCopiesComponent implements OnInit {
 
     @Input() lineitem: IdlObject;
     @Input() batchAdd = false;
+    @Input() hideBarcode = false;
 
     @Output() becameDirty = new EventEmitter<Boolean>();
 

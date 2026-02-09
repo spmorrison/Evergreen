@@ -239,26 +239,13 @@ export class VolCopyContext {
         return false;
     }
 
-    updateInMemoryCopies() {
-        console.debug('updateInMemoryCopies', this);
-        this.updateInMemoryCopiesWithAlerts();
-        this.updateInMemoryCopiesWithNotes();
-        this.updateInMemoryCopiesWithTags();
-    }
-
-    updateInMemoryCopiesWithAlerts() {
-        console.debug('updateInMemoryCopiesWithAlerts', this);
-        this.copyList().forEach(copy => {
+    updateInMemoryCopiesWithAlerts(copyList: IdlObject[]) {
+        copyList.forEach(copy => {
             this.updateInMemoryCopyWithAlerts(copy);
         });
     }
 
     updateInMemoryCopyWithAlerts(copy) {
-        console.debug('updateInMemoryCopyWithAlerts, considering copy', copy.id(), copy);
-        console.debug('with this.newAlerts', this.newAlerts.length, this.newAlerts);
-        console.debug('with this.changedAlerts', this.changedAlerts.length, this.changedAlerts);
-        console.debug('with this.deletedAlerts', this.deletedAlerts.length, this.deletedAlerts);
-
         // Initialize array if needed
         if (!copy.copy_alerts()) { copy.copy_alerts([]); }
 
@@ -269,10 +256,8 @@ export class VolCopyContext {
                 console.error('Why?? alert = ', alert);
                 return;
             }
-            console.debug('considering newAlert', alert);
             const existingAlert = copy.copy_alerts().find(existing => alert.id() === existing.id());
             if (existingAlert) {
-                console.debug('updating pending newAlert', existingAlert);
                 existingAlert.isnew(true);
                 existingAlert.copy(copy.id());
             } else {
@@ -292,13 +277,10 @@ export class VolCopyContext {
                 console.error('Why?? changedAlert = ', changedAlert);
                 return;
             }
-            console.debug('considering changedAlert', changedAlert);
             let existingAlert = null;
             if ('originalAlertIds' in changedAlert) { // ProxyAlert
-                console.debug('batch mode proxy');
                 existingAlert = copy.copy_alerts().find(existing => changedAlert.originalAlertIds.includes(existing.id()));
             } else {
-                console.debug('single-item mode not-a-proxy');
                 existingAlert = copy.copy_alerts().find(existing => changedAlert.id() === existing.id());
             }
             if (existingAlert) {
@@ -308,7 +290,6 @@ export class VolCopyContext {
                 existingAlert.ack_time(changedAlert.ack_time());
                 existingAlert.ack_staff(changedAlert.ack_staff());
                 if (! (existingAlert.isnew() ?? false)) { existingAlert.ischanged(true); }
-                console.debug('changing existing', existingAlert);
             } else {
                 // I forget how this might happen, but just in case
                 console.error('converting changedAlert to newAlert', changedAlert);
@@ -329,7 +310,6 @@ export class VolCopyContext {
                 console.error('Why?? deletedAlert = ', deletedAlert);
                 return;
             }
-            console.debug('considering deletedAlert', deletedAlert);
             let existingAlert = null;
             if ('originalAlertIds' in deletedAlert) { // ProxyAlert
                 existingAlert = copy.copy_alerts().find(existing => deletedAlert.originalAlertIds.includes(existing.id()));
@@ -351,22 +331,15 @@ export class VolCopyContext {
             counts.changed += Number( a.ischanged() ?? false); // but why do our methods here sometime return undefined? bleh
             counts.deleted += Number( a.isdeleted() ?? false);
         });
-        console.debug('breakdown: ', { new: counts.new, changed: counts.changed, deleted: counts.deleted });
     }
 
-    updateInMemoryCopiesWithNotes() {
-        console.debug('updateInMemoryCopiesWithNotes', this);
-        this.copyList().forEach(copy => {
+    updateInMemoryCopiesWithNotes(copyList: IdlObject[]) {
+        copyList.forEach(copy => {
             this.updateInMemoryCopyWithNotes(copy);
         });
     }
 
     updateInMemoryCopyWithNotes(copy) {
-        console.debug('updateInMemoryCopyWithNotes, considering copy', copy.id(), copy);
-        console.debug('with this.newNotes', this.newNotes.length, this.newNotes);
-        console.debug('with this.changedNotes', this.changedNotes.length, this.changedNotes);
-        console.debug('with this.deletedNotes', this.deletedNotes.length, this.deletedNotes);
-
         // Initialize array if needed
         if (!copy.notes()) { copy.notes([]); }
 
@@ -377,10 +350,8 @@ export class VolCopyContext {
                 console.error('Why?? note = ', note);
                 return;
             }
-            console.debug('considering newNote', note);
             const existingNote = copy.notes().find(existing => note.id() === existing.id());
             if (existingNote) {
-                console.debug('updating pending newNote', existingNote);
                 existingNote.isnew(true);
                 existingNote.owning_copy(copy.id());
             } else {
@@ -400,13 +371,10 @@ export class VolCopyContext {
                 console.error('Why?? changedNote = ', changedNote);
                 return;
             }
-            console.debug('considering changedNote', changedNote);
             let existingNote = null;
             if ('originalNoteIds' in changedNote) { // ProxyNote
-                console.debug('batch mode proxy');
                 existingNote = copy.notes().find(existing => changedNote.originalNoteIds.includes(existing.id()));
             } else {
-                console.debug('single-item mode not-a-proxy');
                 existingNote = copy.notes().find(existing => changedNote.id() === existing.id());
             }
             if (existingNote) {
@@ -414,7 +382,6 @@ export class VolCopyContext {
                 existingNote.title(changedNote.title());
                 existingNote.value(changedNote.value());
                 if (! (existingNote.isnew() ?? false)) { existingNote.ischanged(true); }
-                console.debug('changing existing', existingNote);
             } else {
                 // I forget how this might happen, but just in case
                 console.error('converting changedNote to newNote', changedNote);
@@ -435,7 +402,6 @@ export class VolCopyContext {
                 console.error('Why?? deletedNote = ', deletedNote);
                 return;
             }
-            console.debug('considering deletedNote', deletedNote);
             let existingNote = null;
             if ('originalNoteIds' in deletedNote) { // ProxyNote
                 existingNote = copy.notes().find(existing => deletedNote.originalNoteIds.includes(existing.id()));
@@ -457,22 +423,15 @@ export class VolCopyContext {
             counts.changed += Number( a.ischanged() ?? false); // but why do our methods here sometime return undefined? bleh
             counts.deleted += Number( a.isdeleted() ?? false);
         });
-        console.debug('breakdown: ', { new: counts.new, changed: counts.changed, deleted: counts.deleted });
     }
 
-    updateInMemoryCopiesWithTags() {
-        console.debug('updateInMemoryCopiesWithTags', this);
-        this.copyList().forEach(copy => {
+    updateInMemoryCopiesWithTags(copyList: IdlObject[]) {
+        copyList.forEach(copy => {
             this.updateInMemoryCopyWithTags(copy);
         });
     }
 
     updateInMemoryCopyWithTags(copy) {
-        console.debug('considering copy', copy.id(), copy);
-        console.debug('with this.newTagMaps', this.newTagMaps.length, this.newTagMaps);
-        console.debug('with this.changedTagMaps', this.changedTagMaps.length, this.changedTagMaps);
-        console.debug('with this.deletedTagMaps', this.deletedTagMaps.length, this.deletedTagMaps);
-
         // Initialize array if needed
         if (!copy.tags()) { copy.tags([]); }
 
@@ -483,13 +442,11 @@ export class VolCopyContext {
                 console.error('Why?? tagMap = ', tagMap);
                 return;
             }
-            console.debug('considering newTagMap', tagMap);
             const existingTagMap = copy.tags().find(existing => tagMap.id() === existing.id());
             const collidingTagMaps = copy.tags().filter(
                 colliding => this.idl.pkeyValue(tagMap.tag()) === this.idl.pkeyValue(colliding.tag())
             );
             if (existingTagMap) {
-                console.debug('updating pending newTagMap', existingTagMap);
                 existingTagMap.isnew(true);
                 existingTagMap.copy(copy.id());
                 copy.ischanged(true);
@@ -512,19 +469,15 @@ export class VolCopyContext {
                 console.error('Why?? changedTagMap = ', changedTagMap);
                 return;
             }
-            console.debug('considering changedTagMap', changedTagMap);
             let existingTagMap = null;
             if ('originalTagMapIds' in changedTagMap) { // ProxyTagMap
-                console.debug('batch mode proxy');
                 existingTagMap = copy.tags().find(existing => changedTagMap.originalTagMapIds.includes(existing.id()));
             } else {
-                console.debug('single-item mode not-a-proxy');
                 existingTagMap = copy.tags().find(existing => changedTagMap.id() === existing.id());
             }
             if (existingTagMap) {
                 existingTagMap.tag(changedTagMap.tag());
                 if (! (existingTagMap.isnew() ?? false)) { existingTagMap.ischanged(true); }
-                console.debug('changing existing', existingTagMap);
             } else {
                 // I forget how this might happen, but just in case
                 console.error('converting changedTagMap to newTagMap', changedTagMap);
@@ -545,7 +498,6 @@ export class VolCopyContext {
                 console.error('Why?? deletedTagMap = ', deletedTagMap);
                 return;
             }
-            console.debug('considering deletedTagMap', deletedTagMap);
             let existingTagMap = null;
             if ('originalTagMapIds' in deletedTagMap) { // ProxyTagMap
                 existingTagMap = copy.tags().find(existing => deletedTagMap.originalTagMapIds.includes(existing.id()));
@@ -576,6 +528,5 @@ export class VolCopyContext {
             counts.changed += Number( a.ischanged() ?? false); // but why do our methods here sometime return undefined? bleh
             counts.deleted += Number( a.isdeleted() ?? false);
         });
-        console.debug('breakdown: ', { new: counts.new, changed: counts.changed, deleted: counts.deleted });
     }
 }

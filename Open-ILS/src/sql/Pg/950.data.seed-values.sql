@@ -6148,6 +6148,38 @@ INSERT into config.org_unit_setting_type
         'Hold reset reason entries will be removed if older than this interval. Default 1 year if no value provided.',
         'coust', 'description'),
     'interval', null)
+,( 'circ.do_not_retain_year_of_birth_on_aged', 'circ',
+    oils_i18n_gettext('circ.do_not_retain_year_of_birth_on_aged',
+        'When aging circulations do not retain the year from patron date of birth',
+        'cust', 'label'),
+    oils_i18n_gettext('circ.do_not_retain_year_of_birth_on_aged',
+        'When aging circulations do not retain the year from patron date of birth',
+        'cust', 'description'),
+    'bool', NULL)
+,( 'circ.do_not_retain_post_code_on_aged', 'circ',
+    oils_i18n_gettext('circ.do_not_retain_post_code_on_aged',
+        'When aging circulations do not retain the patron postal code',
+        'cust', 'label'),
+    oils_i18n_gettext('circ.do_not_retain_post_code_on_aged',
+        'When aging circulations do not retain the patron postal code',
+        'cust', 'description'),
+    'bool', NULL)
+,( 'holds.do_not_retain_year_of_birth_on_aged', 'circ',
+    oils_i18n_gettext('holds.do_not_retain_year_of_birth_on_aged',
+        'When aging holds do not retain the year from patron date of birth',
+        'cust', 'label'),
+    oils_i18n_gettext('holds.do_not_retain_year_of_birth_on_aged',
+        'When aging holds do not retain the year from patron date of birth',
+        'cust', 'description'),
+    'bool', NULL)
+,( 'holds.do_not_retain_post_code_on_aged', 'circ',
+    oils_i18n_gettext('holds.do_not_retain_post_code_on_aged',
+        'When aging holds do not retain the patron postal code',
+        'cust', 'label'),
+    oils_i18n_gettext('holds.do_not_retain_post_code_on_aged',
+        'When aging holds do not retain the patron postal code',
+        'cust', 'description'),
+    'bool', NULL)
 ;
 
 UPDATE config.org_unit_setting_type
@@ -26355,6 +26387,13 @@ VALUES (
     )
 );
 
+INSERT INTO config.settings_group (name, label) VALUES
+    ('notify.sms',   oils_i18n_gettext('notify.sms',   'Text Notices',  'csg', 'label')),
+    ('notify.email', oils_i18n_gettext('notify.email', 'Email Notices', 'csg', 'label')),
+    ('notify.phone', oils_i18n_gettext('notify.phone', 'Phone Notices', 'csg', 'label')),
+    ('notify.print', oils_i18n_gettext('notify.print', 'Print Notices', 'csg', 'label'))
+;
+
 INSERT INTO config.org_unit_setting_type (
     name, grp, label, description, datatype
 ) VALUES (
@@ -26449,6 +26488,11 @@ VALUES
  oils_i18n_gettext('staff.login.shib_sso.shib_matchpoint', 'Shibboleth Staff SSO matchpoint', 'coust', 'label'),
  oils_i18n_gettext('staff.login.shib_sso.shib_matchpoint',
   'Shibboleth-side field to match a patron against for Shibboleth SSO. Default is uid; use eppn for Active Directory', 'coust', 'description'),
+ 'string', 627),
+('staff.login.shib_sso.shib_path',
+ 'sec',
+ oils_i18n_gettext('staff.login.shib_sso.shib_path', 'Specific Shibboleth Application path. Default /Shibboleth.sso', 'coust', 'label'),
+ oils_i18n_gettext('staff.login.shib_sso.shib_path', 'Specific Shibboleth Application path. Default /Shibboleth.sso', 'coust', 'description'),
  'string', 627)
 ;
 
@@ -26495,3 +26539,7 @@ INSERT INTO action_trigger.environment (event_def, path)
 VALUES (currval('action_trigger.event_definition_id_seq'), 'home_ou'),
        (currval('action_trigger.event_definition_id_seq'), 'home_ou.mailing_address'),
        (currval('action_trigger.event_definition_id_seq'), 'home_ou.billing_address');
+
+INSERT into action_trigger.hook (key, core_type, description) VALUES
+( 'au.erenewal', 'au', 'A patron has been renewed via Erenewal');
+

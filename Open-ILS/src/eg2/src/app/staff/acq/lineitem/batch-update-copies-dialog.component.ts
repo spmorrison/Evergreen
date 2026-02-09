@@ -6,7 +6,6 @@ import {IdlObject} from '@eg/core/idl.service';
 import {OrgService} from '@eg/core/org.service';
 import {AuthService} from '@eg/core/auth.service';
 import {ComboboxEntry} from '@eg/share/combobox/combobox.component';
-import {LineitemCopyAttrsComponent} from './copy-attrs.component';
 
 @Component({
     selector: 'eg-acq-batch-update-copies-dialog',
@@ -16,6 +15,7 @@ import {LineitemCopyAttrsComponent} from './copy-attrs.component';
 export class BatchUpdateCopiesDialogComponent extends DialogComponent {
 
     @Input() ids: number[];
+    @Input() activatedPo: boolean;
 
     copyCount = '';
     selectedFormula: ComboboxEntry;
@@ -53,12 +53,14 @@ export class BatchUpdateCopiesDialogComponent extends DialogComponent {
             this.templateCopy.location() ||
             this.templateCopy.collection_code() ||
             this.templateCopy.fund() ||
-            this.templateCopy.circ_modifier()) {
+            this.templateCopy.circ_modifier() ||
+            this.templateCopy.note()) {
             return true;
         } else {
             return false;
         }
     }
+
 
     compileBatchChange(): any {
         const changes = {
@@ -82,6 +84,9 @@ export class BatchUpdateCopiesDialogComponent extends DialogComponent {
         }
         if (this.templateCopy.circ_modifier()) {
             changes['circ_modifier'] = this.templateCopy.circ_modifier();
+        }
+        if (this.templateCopy.note()) {
+            changes['note'] = this.templateCopy.note();
         }
         return changes;
     }

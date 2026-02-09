@@ -2035,6 +2035,11 @@ table caption.visually-hidden {
     border-bottom:3px solid [% css_colors.background %];
 }
 
+/* Indent notify phone number input and suspend date toggle to align with checkboxes */
+#notify-phone-number, #actDateToggle {
+    margin-inline-start: 1.75rem;
+}
+
 .header_middle {
     [% IF rtl == 't' -%]
     padding: 0px 0px 0px 7px;
@@ -4572,6 +4577,9 @@ padding: 15px;
     display: grid;
     grid-template-columns: subgrid;
     grid-column: -1 / 1;
+    margin: .5rem;
+    padding: .5rem;
+    border: 1px solid [% css_colors.border_table %];
 }
 
 .pointer {

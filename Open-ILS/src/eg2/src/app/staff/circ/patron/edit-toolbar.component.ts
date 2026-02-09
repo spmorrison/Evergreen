@@ -1,12 +1,11 @@
 
 import {Component, OnInit, Input, EventEmitter} from '@angular/core';
 import {tap} from 'rxjs';
-import {OrgService} from '@eg/core/org.service';
 import {IdlService, IdlObject} from '@eg/core/idl.service';
 import {NetService} from '@eg/core/net.service';
 import {AuthService} from '@eg/core/auth.service';
-import {PatronService} from '@eg/staff/share/patron/patron.service';
 import {PatronSearchFieldSet} from '@eg/staff/share/patron/search.component';
+import {ServerStoreService} from '@eg/core/server-store.service';
 
 export enum VisibilityLevel {
     ALL_FIELDS = 0,
@@ -47,14 +46,22 @@ export class EditToolbarComponent implements OnInit {
     addressAlerts: IdlObject[] = [];
 
     constructor(
-        private org: OrgService,
         private idl: IdlService,
         private net: NetService,
+        private store: ServerStoreService,
         private auth: AuthService,
-        private patronService: PatronService
     ) {}
 
     ngOnInit() {
+        // Check if suggested fields should be the default.
+        // (cached by resolver)
+        this.store.getItem('ui.patron.edit.default_suggested')
+            .then(value => {
+                if (value) {
+                    this.changeFields(VisibilityLevel.SUGGESTED_FIELDS);
+                }
+            });
+
         // Emitted by our editor component.
         this.disableSaveStateChanged.subscribe(d => this.disableSave = d);
     }
